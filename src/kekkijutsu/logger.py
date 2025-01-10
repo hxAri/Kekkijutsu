@@ -39,7 +39,7 @@ from typing import (
 )
 from tzlocal import get_localzone_name as TzLocalzoneName
 
-from kekkijutsu import __name__ as program
+from kekkijutsu import __program__ as program
 from kekkijutsu.common import colorize
 from kekkijutsu.constant import BasePath
 
@@ -311,7 +311,7 @@ class Logger( Generic[_Context] ):
 			message=message.format( *args, **kwargs )
 		)
 		if _EnableStore is True:
-			with open( self.filename, "a" ) as fopen:
+			with open( self.filename, "a", encoding="UTF-8" ) as fopen:
 				fopen.write( formatted.replace( "\x0a", "\\n" ) )
 				fopen.write( "\x0a" )
 				fopen.close()
