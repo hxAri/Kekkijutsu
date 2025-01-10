@@ -20,8 +20,8 @@
 #
 
 __all__ = [
-	"__name__"
+	"__program__"
 ]
 
-__name__ = "Kekkijutsu"
+__program__ = "Kekkijutsu"
 """ Program Name """
