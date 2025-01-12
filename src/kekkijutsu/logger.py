@@ -41,7 +41,7 @@ from tzlocal import get_localzone_name as TzLocalzoneName
 
 from kekkijutsu import __program__ as program
 from kekkijutsu.common import colorize
-from kekkijutsu.constant import BasePath
+from kekkijutsu.constant import BasePath, BaseVenv
 
 
 __all__ = [
@@ -316,7 +316,10 @@ class Logger( Generic[_Context] ):
 				fopen.write( "\x0a" )
 				fopen.close()
 		if not isinstance( level, Str ) and level.value >= _Threshlod.value:
-			print( f"\x0d{colorize( formatted )}" )
+			print( f"\x0d{colorize( formatted )}" \
+				.replace( BasePath, "{basepath}" ) \
+				.replace( BaseVenv, "{virtual}" )
+		 	)
 		...
 	
 	...
