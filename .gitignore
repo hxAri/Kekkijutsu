@@ -166,6 +166,7 @@ cython_debug/
 **.tar**
 **.zip**
 
-# Generator
+# Kekkijutsu
 #  Disable another files.
+logging/**.log
 resources/templates/program-*.template-ascii

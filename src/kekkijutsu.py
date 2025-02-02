@@ -24,6 +24,7 @@ from builtins import str as Str
 from datetime import datetime
 from os import chmod, makedirs as mkdir, remove
 from os.path import isdir, isfile
+from re import split
 from shutil import rmtree
 from traceback import format_exception
 from typing import Any, final, MutableMapping, Optional
@@ -75,6 +76,9 @@ class Kekkijutsu:
 		self.prompt:Str = "├╼ [{author}@{project}]─[{pathname}]\n├╼  <<-{label}>"
 		self.shellexec = f"{BasePath}/resources/templates/shellexec.template"
 	
+	def classname( self, project:Str ) -> Str:
+		return "".join( part.capitalize() for part in split( r"(?:-|_|\.)", project ) )
+	
 	def main( self ) -> None:
 		
 		""" Main program execution """
@@ -88,11 +92,12 @@ class Kekkijutsu:
 		puts( "│", start=prefix )
 		try:
 			project = autocomplete( self.prompt.format( **{ **self.kwargs, "label": "project" }), prefix=prefix, values=None )
-			# project = autocomplete( self.prompt.format( **{ **self.kwargs, "label": "project" }), prefix=prefix, values=[ "Sample" ] )
+			classname = self.classname( project )
+			module = autocomplete( self.prompt.format( **{ **self.kwargs, "label": "module" }), prefix=prefix, values=None )
+			module = module.lower()
 			pathname = "/?"
 			while not isdir( pathname ):
 				pathname = autocomplete( self.prompt.format( **{ **self.kwargs, "project": project, "label": "pathname" }), prefix=prefix, values=None )
-				# pathname = autocomplete( self.prompt.format( **{ **self.kwargs, "project": project, "label": "pathname" }), prefix=prefix, values=[ "/self/personal/coding/Python/Generator" ] )
 				if isdir( f"{pathname}/{project}" ):
 					puts( "├╼ Project exists", start=prefix )
 					overwrite = autocomplete( self.prompt.format( **{ **self.kwargs, "project": project, "label": "remove<Y,n>" }), prefix=prefix, values=[ "Y", "y", "N", "n" ] )
@@ -124,8 +129,8 @@ class Kekkijutsu:
 				mkdir( f"{pathname}/{project}" )
 				puts( f"├╼ Mkdir {pathname}/{project}/src", start=prefix )
 				mkdir( f"{pathname}/{project}/src" )
-				puts( f"├╼ Mkdir {pathname}/{project}/src/{project.lower()}", start=prefix )
-				mkdir( f"{pathname}/{project}/src/{project.lower()}" )
+				puts( f"├╼ Mkdir {pathname}/{project}/src/{module}", start=prefix )
+				mkdir( f"{pathname}/{project}/src/{module}" )
 				puts( "├╼ Reading template program-comment", start=prefix )
 				comments = self.template( "program-comment", formats={
 					"year": currtime.year,
@@ -148,38 +153,75 @@ class Kekkijutsu:
 				puts( f"├╼ Writing {filename}", start=prefix )
 				self.write( filename, template )
 				
+				formats = {
+					"comment": comments,
+					"module": module,
+					"project": project,
+					"project.class": classname,
+					"project.lower": project.lower(),
+					"project.upper": project.upper()
+				}
+				
 				puts( "├╼ Reading template program-main", start=prefix )
-				template = self.template( "program-main", formats={ "comment": comments, "project": project.lower() } )
+				template = self.template( "program-main", formats=formats )
 				filename = f"{pathname}/{project}/src/{project.lower()}.py"
 				puts( f"├╼ Writing {filename}", start=prefix )
 				self.write( filename, template )
 				
 				puts( "├╼ Reading template program-init", start=prefix )
-				template = self.template( "program-init", formats={ "comment": comments, "project": project } )
-				filename = f"{pathname}/{project}/src/{project.lower()}/__init__.py"
+				template = self.template( "program-init", formats=formats )
+				filename = f"{pathname}/{project}/src/{module}/__init__.py"
 				puts( f"├╼ Writing {filename}", start=prefix )
 				self.write( filename, template )
 				
 				puts( "├╼ Reading template program-constant", start=prefix )
-				template = self.template( "program-constant", formats={ "comment": comments } )
-				filename = f"{pathname}/{project}/src/{project.lower()}/constant.py"
+				template = self.template( "program-constant", formats=formats )
+				filename = f"{pathname}/{project}/src/{module}/constant.py"
 				puts( f"├╼ Writing {filename}", start=prefix )
 				self.write( filename, template )
 				
 				puts( "├╼ Reading template program-common", start=prefix )
-				template = self.template( "program-common", formats={ "comment": comments, "project": project.lower() } )
-				filename = f"{pathname}/{project}/src/{project.lower()}/common.py"
+				template = self.template( "program-common", formats=formats )
+				filename = f"{pathname}/{project}/src/{module}/common.py"
+				puts( f"├╼ Writing {filename}", start=prefix )
+				self.write( filename, template )
+				
+				support = autocomplete( self.prompt.format( **{ **self.kwargs, "project": project, "pathname": pathname, "author": nickname, "label": "suport multithreading and multiprocessing<Y,n>" }), prefix=prefix, values=[ "Y", "y", "N", "n" ] )
+				if support in [ "Y", "y" ]:
+					puts( "├╼ Reading template program-futures", start=prefix )
+					template = self.template( "program-futures", formats=formats )
+					filename = f"{pathname}/{project}/src/{module}/futures.py"
+					puts( f"├╼ Writing {filename}", start=prefix )
+					self.write( filename, template )
+				
+				support = autocomplete( self.prompt.format( **{ **self.kwargs, "project": project, "pathname": pathname, "author": nickname, "label": "suport kafka<Y,n>" }), prefix=prefix, values=[ "Y", "y", "N", "n" ] )
+				if support in [ "Y", "y" ]:
+					puts( "├╼ Reading template program-kafka", start=prefix )
+					template = self.template( "program-kafka", formats=formats )
+					filename = f"{pathname}/{project}/src/{module}/kafka.py"
+					puts( f"├╼ Writing {filename}", start=prefix )
+					self.write( filename, template )
+				
+				puts( "├╼ Reading template program-gitignore", start=prefix )
+				template = self.template( "program-gitignore", formats=formats )
+				filename = f"{pathname}/{project}/.gitignore"
 				puts( f"├╼ Writing {filename}", start=prefix )
 				self.write( filename, template )
 				
 				puts( "├╼ Reading template program-logger", start=prefix )
-				template = self.template( "program-logger", formats={ "comment": comments, "project": project.lower() } )
-				filename = f"{pathname}/{project}/src/{project.lower()}/logger.py"
+				template = self.template( "program-logger", formats=formats )
+				filename = f"{pathname}/{project}/src/{module}/logger.py"
+				puts( f"├╼ Writing {filename}", start=prefix )
+				self.write( filename, template )
+				
+				puts( "├╼ Reading template program-request", start=prefix )
+				template = self.template( "program-request", formats=formats )
+				filename = f"{pathname}/{project}/src/{module}/request.py"
 				puts( f"├╼ Writing {filename}", start=prefix )
 				self.write( filename, template )
 				
 				puts( "├╼ Reading template program-executable", start=prefix )
-				template = self.template( "program-executable", formats={ "comment": comments } )
+				template = self.template( "program-executable", formats=formats )
 				filename = f"{pathname}/{project}/{project.lower()}"
 				puts( f"├╼ Writing {filename}", start=prefix )
 				self.write( filename, template )
@@ -187,7 +229,7 @@ class Kekkijutsu:
 				chmod( filename, 509 )
 				
 				puts( "├╼ Reading template program-license", start=prefix )
-				template = self.template( "program-license", formats={} )
+				template = self.template( "program-license", formats=formats )
 				filename = f"{pathname}/{project}/LICENSE"
 				puts( f"├╼ Writing {filename}", start=prefix )
 				self.write( filename, template )
