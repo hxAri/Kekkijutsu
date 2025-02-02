@@ -305,6 +305,16 @@ function main() {
 		return 1
 	}
 	
+	# Build ACII template into encoded template
+	function builder() {
+		if [[ $(ls -A ${basepath}/resources/templates ) ]]; then
+			for ascii in ${basepath}/resources/templates/*.template-ascii; do
+				puts "${ascii/.template-ascii/.template}"
+				cat $ascii | base64 > ${ascii/.template-ascii/.template}
+			done
+		fi
+	}
+	
 	# Handle git auto commit for added or modifiend files.
 	function commits() {
 		if [[ ! -d ${basepath}/.git ]]; then
@@ -929,6 +939,7 @@ function main() {
 	if [[ -n "$action" ]]; then
 		case "$action" in
 			backing) backing ${arguments[@]} ;;
+			builder) builder ;;
 			commits) commits ;;
 			install) pyinstall ;;
 			linting) linting ;;
@@ -948,6 +959,7 @@ function main() {
 				puts "                        · Arguments:"
 				puts "                          - [compression] e.g tar|zip"
 				puts "                          - [extension] e.g tar.gz|zip"
+				puts "    - [[builder]]       Build ACII template into encoded template"
 				puts "    - [[commits]]       Make a commit to all files except in .gitignore"
 				puts "    - [[help]]          Show this message and exit"
 				puts "    - [[install]]       Install the program code as a python module"
@@ -967,6 +979,7 @@ function main() {
 			;;
 		esac
 	else
+		builder
 		python3 src/${configs[program]}.py ${arguments[@]}
 	fi
 	
