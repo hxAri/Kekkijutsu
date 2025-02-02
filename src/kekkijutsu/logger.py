@@ -264,7 +264,7 @@ class Logger( Generic[_Context] ):
 	def warning( self, message:Str, *args:Any, **kwargs:Any ) -> None:
 		self.write( Level.WARNING, message, *args, **kwargs )
 	
-	def write( self, level:Union[Int,Level,Str], message:Str, *args:Any, thread:Union[Int,Str]=0, **kwargs:Any ) -> None:
+	def write( self, level:Union[Int,Level,Str], message:Str, *args:Any, end:Str="\x0a", start:Str="\x0d", thread:Union[Int,Str]=0, **kwargs:Any ) -> None:
 		
 		"""
 		Logger write
@@ -276,6 +276,10 @@ class Logger( Generic[_Context] ):
 				Logger message
 			args (*Any):
 				Logger argument message
+			end (Str):
+				The end of line, default is newline (\\n)
+			start (Str):
+				Prefix of output
 			thread (Int|Str):
 				Current thread position number
 			kwargs (**Any):
@@ -316,10 +320,10 @@ class Logger( Generic[_Context] ):
 				fopen.write( "\x0a" )
 				fopen.close()
 		if not isinstance( level, Str ) and level.value >= _Threshlod.value:
-			print( f"\x0d{colorize( formatted )}" \
+			output = colorize( formatted ) \
 				.replace( BasePath, "{basepath}" ) \
 				.replace( BaseVenv, "{virtual}" )
-		 	)
+			print( "".join([ start, output ]), end=end )
 		...
 	
 	...
