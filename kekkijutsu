@@ -310,7 +310,9 @@ function main() {
 		if [[ $(ls -A ${basepath}/resources/templates ) ]]; then
 			for ascii in ${basepath}/resources/templates/*.template-ascii; do
 				puts "${ascii/.template-ascii/.template}"
-				cat $ascii | base64 > ${ascii/.template-ascii/.template}
+				echo -e "----- BEGIN ENCRYPTED ${configs[program]^^} TEMPLATE -----\n" > ${ascii/.template-ascii/.template}
+				cat $ascii | base64 >> ${ascii/.template-ascii/.template}
+				echo -e "\n----- END ENCRYPTED ${configs[program]^^} TEMPLATE -----" >> ${ascii/.template-ascii/.template}
 			done
 		fi
 	}

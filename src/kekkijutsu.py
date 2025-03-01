@@ -143,24 +143,21 @@ class Kekkijutsu:
 					"biograph": biograph,
 				})
 				
-				puts( "├╼ Reading template program-configs", start=prefix )
-				template = self.template( "program-configs", formats={
-					"comment": comments,
-					"project": project.lower(),
-					"github": github
-				})
-				filename = f"{pathname}/{project}/.config"
-				puts( f"├╼ Writing {filename}", start=prefix )
-				self.write( filename, template )
-				
 				formats = {
 					"comment": comments,
+					"github": github,
 					"module": module,
 					"project": project,
 					"project.class": classname,
 					"project.lower": project.lower(),
 					"project.upper": project.upper()
 				}
+				
+				puts( "├╼ Reading template program-configs", start=prefix )
+				template = self.template( "program-configs", formats=formats )
+				filename = f"{pathname}/{project}/.config"
+				puts( f"├╼ Writing {filename}", start=prefix )
+				self.write( filename, template )
 				
 				puts( "├╼ Reading template program-main", start=prefix )
 				template = self.template( "program-main", formats=formats )
@@ -257,7 +254,8 @@ class Kekkijutsu:
 			raise FileNotFoundError( f"No such template or file {filename}" )
 		template = ""
 		with open( filename, "r", encoding=self.encoding ) as fopen:
-			template = b64decode( fopen.read() ).decode( self.encoding )
+			flines = list( line for line in fopen.readlines() if line and not line.startswith( "----- BEGIN" ) and not line.startswith( "----- END" ) )
+			template = b64decode( "\x0a".join( flines ) ).decode( self.encoding )
 			fopen.close()
 		if formats is not None and formats:
 			for keyset, value in formats.items():
