@@ -183,8 +183,19 @@ class Kekkijutsu:
 				puts( f"├╼ Writing {filename}", start=prefix )
 				self.write( filename, template )
 				
+				puts( "├╼ Reading template program-errors", start=prefix )
+				template = self.template( "program-errors", formats=formats )
+				filename = f"{pathname}/{project}/src/{module}/errors.py"
+				puts( f"├╼ Writing {filename}", start=prefix )
+				self.write( filename, template )
+				
 				support = autocomplete( self.prompt.format( **{ **self.kwargs, "project": project, "pathname": pathname, "author": nickname, "label": "suport multithreading and multiprocessing<Y,n>" }), prefix=prefix, values=[ "Y", "y", "N", "n" ] )
 				if support in [ "Y", "y" ]:
+					puts( "├╼ Reading template program-main-multithreading", start=prefix )
+					template = self.template( "program-main-multithreading", formats=formats )
+					filename = f"{pathname}/{project}/src/{project.lower()}.py"
+					puts( f"├╼ Writing {filename}", start=prefix )
+					self.write( filename, template )
 					puts( "├╼ Reading template program-futures", start=prefix )
 					template = self.template( "program-futures", formats=formats )
 					filename = f"{pathname}/{project}/src/{module}/futures.py"
