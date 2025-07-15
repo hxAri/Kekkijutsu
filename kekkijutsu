@@ -2,7 +2,7 @@
 
 #
 # @author hxAri (hxari)
-# @create 07-01-2025 03:00
+# @create 15-07-2025 12:39
 # @github https://github.com/hxAri/Kekkijutsu
 #
 # Kekkijutsu is a powerful Python Project builder.
@@ -17,6 +17,9 @@
 #
 # You should have received a copy of the GNU General Public License
 # along with this program. If not, see <https://www.gnu.org/licenses/>.
+#
+# This program was built and created under Kekkijutsu.
+# Visit the github page <https://github.com/hxAri/Kekkijutsu>.
 #
 
 # Subshell status code
@@ -71,10 +74,12 @@ function main() {
 		fi
 	fi
 	
+	unset IFS
+	
 	# Program argument values.
 	local arguments=()
 	local i=1
-	for argument in ${@}; do
+	for argument in "${@}"; do
 		if [[ $i -ne 1 ]] || [[ -z "$action" ]]; then
 			arguments+=( "$argument" )
 		fi
@@ -941,7 +946,6 @@ function main() {
 	if [[ -n "$action" ]]; then
 		case "$action" in
 			backing) backing ${arguments[@]} ;;
-			builder) builder ;;
 			commits) commits ;;
 			install) pyinstall ;;
 			linting) linting ;;
@@ -961,7 +965,6 @@ function main() {
 				puts "                        · Arguments:"
 				puts "                          - [compression] e.g tar|zip"
 				puts "                          - [extension] e.g tar.gz|zip"
-				puts "    - [[builder]]       Build ACII template into encoded template"
 				puts "    - [[commits]]       Make a commit to all files except in .gitignore"
 				puts "    - [[help]]          Show this message and exit"
 				puts "    - [[install]]       Install the program code as a python module"
@@ -982,7 +985,7 @@ function main() {
 		esac
 	else
 		builder
-		python3 src/${configs[program]}.py ${arguments[@]}
+		python3 src/${configs[program]}.py builder "${arguments[@]}"
 	fi
 	
 	if [[ $(command -v deactivate) ]]; then
