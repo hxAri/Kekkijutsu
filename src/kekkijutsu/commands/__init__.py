@@ -1,3 +1,4 @@
+#!/usr/bin/env python3
 
 #
 # @author hxAri (hxari)
@@ -21,18 +22,5 @@
 # Visit the github page <https://github.com/hxAri/Kekkijutsu>.
 #
 
-branch=
-checked=false
-clean=true
-compress=tar
-environment=development
-include=.config,.git,.gitignore,kekkijutsu,LICENSE,README.md,requirements.txt,resources,src
-library=
-packages=git,openssh-client,python3.11,python3.11-dev,python3.11-venv,tar,unzip,wget,zip
-program=kekkijutsu
-repository=https://github.com/hxAri/Kekkijutsu
-root=false
-servers=
-version=1.0.0
-virtual=/home/virtual/bin/activate
-virtualize=true
+__all__ = [
+]

@@ -2,7 +2,7 @@
 
 #
 # @author hxAri (hxari)
-# @create 07-01-2025 03:00
+# @create 15-07-2025 12:39
 # @github https://github.com/hxAri/Kekkijutsu
 #
 # Kekkijutsu is a powerful Python Project builder.
@@ -18,15 +18,18 @@
 # You should have received a copy of the GNU General Public License
 # along with this program. If not, see <https://www.gnu.org/licenses/>.
 #
+# This program was built and created under Kekkijutsu.
+# Visit the github page <https://github.com/hxAri/Kekkijutsu>.
+#
 
 from builtins import bool as Bool, int as Int, str as Str
 from datetime import datetime
 from enum import Enum
 from inspect import getframeinfo, stack
-from os import getpid, getuid, makedirs as mkdir
+from os import getpid, makedirs as mkdir
 from os.path import isdir
-from pwd import getpwuid
 from pytz import timezone
+from pytz.exceptions import UnknownTimeZoneError
 from pytz.tzinfo import BaseTzInfo
 from random import randint
 from typing import (
@@ -41,7 +44,7 @@ from tzlocal import get_localzone_name as TzLocalzoneName
 
 from kekkijutsu import __program__ as program
 from kekkijutsu.common import colorize
-from kekkijutsu.constant import BasePath, BaseVenv
+from kekkijutsu.constant import BasePath, BaseVenv, Username
 
 
 __all__ = [
@@ -175,7 +178,11 @@ class Logger( Generic[_Context] ):
 		self.__context = context
 		self.__filename = currtime.strftime( f"{self.basepath}/{program.lower()}-%Y-%m-%d.log" )
 		self.__formatter = formatter
-		self.__timezone = timezone( TzLocalzoneName() )
+		try:
+			self.__timezone = timezone( TzLocalzoneName() )
+		except UnknownTimeZoneError:
+			self.__timezone = timezone( "Asia/Jakarta" )
+		...
 	
 	@final
 	@property
@@ -239,14 +246,6 @@ class Logger( Generic[_Context] ):
 		
 		return self.__timezone
 	
-	@final
-	@property
-	def username( self ) -> Str:
-		
-		""" Current os account username """
-		
-		return getpwuid( getuid() )[0]
-	
 	def utcoffset( self ) -> Tuple[_Strftime,_Utcoffsets]:
 		
 		""" Return formatted datetime and utcoffset """
@@ -301,12 +300,11 @@ class Logger( Generic[_Context] ):
 		if isinstance( level, Level ):
 			levelname = level.name
 		thread = str( thread )
-		username = self.username
 		formatted = self.formatter.format(
 			datetime=strftime,
 			context=context[:38].ljust( 38 ),
 			program=program[:16].ljust( 16 ),
-			username=username[:6].center( 6 ),
+			username=Username[:6].center( 6 ),
 			utcoffset=offsets[:6].ljust( 6 ),
 			level=levelname[:8].center( 8 ),
 			linenum=linenum[:4].ljust( 4 ),

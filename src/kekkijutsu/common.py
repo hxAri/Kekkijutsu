@@ -2,7 +2,7 @@
 
 #
 # @author hxAri (hxari)
-# @create 07-01-2025 03:00
+# @create 15-07-2025 12:39
 # @github https://github.com/hxAri/Kekkijutsu
 #
 # Kekkijutsu is a powerful Python Project builder.
@@ -18,24 +18,30 @@
 # You should have received a copy of the GNU General Public License
 # along with this program. If not, see <https://www.gnu.org/licenses/>.
 #
+# This program was built and created under Kekkijutsu.
+# Visit the github page <https://github.com/hxAri/Kekkijutsu>.
+#
 
 from builtins import bool as Bool, int as Int, str as Str
 from datetime import datetime
 from inspect import getframeinfo, stack
 from json import loads as JsonDecoder, JSONDecodeError
+from pickle import dumps as PickleDumps, PicklingError
 from pytz import timezone
 from random import choice
 from re import MULTILINE, S
 from re import compile, match, split, sub as substr
-from sys import exit
 from time import sleep
+from traceback import format_exception
 from typing import ( 
 	Any, 
 	Iterable, 
 	MutableMapping, 
 	MutableSequence, 
-	Union
+	Optional, 
+	Union 
 )
+from urllib.parse import quote as urlquote
 
 from kekkijutsu.constant import BasePath, BaseVenv
 
@@ -45,8 +51,10 @@ __all__ = [
 	"cserializer",
 	"delays",
 	"extractor",
+	"picklable",
 	"puts",
 	"sorter",
+	"traceback",
 	"typeof"
 ]
 
@@ -200,7 +208,7 @@ def cserializer( cookies:MutableMapping[Str,Str] ) -> Str:
 			String of serialized cookies
 	"""
 	
-	return "\x3b\x20".join( list( f"{keyset}={value}" for keyset, value in cookies.items() ) )
+	return "\x3b\x20".join( list( f"{keyset}={urlquote( Str( value ) )}" for keyset, value in cookies.items() ) )
 
 def delays() -> None:
 	
@@ -247,6 +255,18 @@ def extractor( contents:Str ) -> Iterable[MutableMapping[Str,MutableSequence[Any
 			...
 		break
 	...
+
+def picklable( object ) -> Bool:
+	
+	""" Return whether the object is pickable """
+	
+	try:
+		PickleDumps( object )
+	except PicklingError:
+		return False
+	except AttributeError:
+		return False
+	return True
 
 def puts( *values:Any, base:Str="\x1b[0m", end:Str="\x0a", sep:Str="\x20", start:Str="", thread:Union[Int,Str]=None, logging:Bool=False, close:Int=None ) -> None:
 	
@@ -319,6 +339,15 @@ def sorter( content:MutableMapping[Str,Any] ) -> MutableMapping[Str,Any]:
 					values[i] = sorter( value )
 		results[keyset] = values
 	return results
+
+def traceback( e:BaseException, separator:Optional[Str]=None ) -> Union[MutableSequence[Str],Str]:
+	
+	""" Exception format (handle compatibility with python<=3.11) """
+	
+	formats = format_exception( type( e ), e, e.__traceback__ )
+	if separator is not None:
+		return separator.join( formats )
+	return formats
 
 def typeof( instance:Any ) -> Str:
 	
