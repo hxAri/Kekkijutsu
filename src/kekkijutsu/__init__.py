@@ -2,7 +2,7 @@
 
 #
 # @author hxAri (hxari)
-# @create 07-01-2025 03:00
+# @create 15-07-2025 12:39
 # @github https://github.com/hxAri/Kekkijutsu
 #
 # Kekkijutsu is a powerful Python Project builder.
@@ -17,6 +17,9 @@
 #
 # You should have received a copy of the GNU General Public License
 # along with this program. If not, see <https://www.gnu.org/licenses/>.
+#
+# This program was built and created under Kekkijutsu.
+# Visit the github page <https://github.com/hxAri/Kekkijutsu>.
 #
 
 __all__ = [
