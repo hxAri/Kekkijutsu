@@ -101,11 +101,13 @@ class Command:
 						break
 					pathname = "/?"
 			author = autocomplete( builder.prompt.format( **{ **builder.kwargs, "project": project, "pathname": pathname, "label": "author" }), prefix=builder.prefix, values=None )
-			github = ""
+			repositoyType = ""
+			repositoyUrl = ""
 			puts( "├╼ Have remote repositoy?", start=builder.prefix )
-			confirm = autocomplete( builder.prompt.format( **{ **builder.kwargs, "project": project, "pathname": pathname, "label": "github<Y,n>" }), prefix=builder.prefix, values=[ "Y", "y", "N", "n" ] )
+			confirm = autocomplete( builder.prompt.format( **{ **builder.kwargs, "project": project, "pathname": pathname, "label": "repositoy<Y,n>" }), prefix=builder.prefix, values=[ "Y", "y", "N", "n" ] )
 			if confirm in [ "Y", "y" ]:
-				github = autocomplete( builder.prompt.format( **{ **builder.kwargs, "project": project, "pathname": pathname, "label": "github" }), prefix=builder.prefix, values=None )
+				repositoyType = autocomplete( builder.prompt.format( **{ **builder.kwargs, "project": project, "pathname": pathname, "label": "repositoy<type>" }), prefix=builder.prefix, values=None )
+				repositoyUrl = autocomplete( builder.prompt.format( **{ **builder.kwargs, "project": project, "pathname": pathname, "label": "repositoy<url>" }), prefix=builder.prefix, values=None )
 			nickname = autocomplete( builder.prompt.format( **{ **builder.kwargs, "project": project, "pathname": pathname, "label": "nickname" }), prefix=builder.prefix, values=None )
 			usermail = autocomplete( builder.prompt.format( **{ **builder.kwargs, "project": project, "pathname": pathname, "author": nickname, "label": "usermail" }), prefix=builder.prefix, values=None )
 			biograph = autocomplete( builder.prompt.format( **{ **builder.kwargs, "project": project, "pathname": pathname, "author": nickname, "label": "description" }), prefix=builder.prefix, values=None )
@@ -121,124 +123,103 @@ class Command:
 				mkdir( f"{pathname}/{project}/src/{module}" )
 				puts( "├╼ Reading template program-comment", start=builder.prefix )
 				comments = builder.template( "program-comment", formats={
-					"year": currtime.year,
 					"author": author,
-					"github": github,
-					"create": created,
-					"project": project,
-					"nickname": nickname,
-					"usermail": usermail,
 					"biograph": biograph,
+					"create": created,
+					"nickname": nickname,
+					"project": project,
+					"repository.type": repositoyType,
+					"repository.url": repositoyUrl,
+					"usermail": usermail,
+					"year": currtime.year
 				})
-				
+				if not repositoyType and not repositoyUrl:
+					comments = comments.replace( "\x23\x20\x40\x20\x0a", "" )
 				formats = {
+					"biograph": biograph,
 					"comment": comments,
-					"github": github,
 					"module": module,
 					"project": project,
 					"project.class": classname,
 					"project.lower": project.lower(),
-					"project.upper": project.upper()
+					"project.upper": project.upper(),
+					"repository.type": repositoyType,
+					"repository.url": repositoyUrl
 				}
-				
-				puts( "├╼ Reading template program-configs", start=builder.prefix )
-				template = builder.template( "program-configs", formats=formats )
-				filename = f"{pathname}/{project}/.config"
-				puts( f"├╼ Writing {filename}", start=builder.prefix )
-				builder.write( filename, template )
-				
-				puts( "├╼ Reading template program-main", start=builder.prefix )
-				template = builder.template( "program-main", formats=formats )
-				filename = f"{pathname}/{project}/src/{project.lower()}.py"
-				puts( f"├╼ Writing {filename}", start=builder.prefix )
-				builder.write( filename, template )
-				
-				puts( "├╼ Reading template program-init", start=builder.prefix )
-				template = builder.template( "program-init", formats=formats )
-				filename = f"{pathname}/{project}/src/{module}/__init__.py"
-				puts( f"├╼ Writing {filename}", start=builder.prefix )
-				builder.write( filename, template )
-				
-				puts( "├╼ Reading template program-constant", start=builder.prefix )
-				template = builder.template( "program-constant", formats=formats )
-				filename = f"{pathname}/{project}/src/{module}/constant.py"
-				puts( f"├╼ Writing {filename}", start=builder.prefix )
-				builder.write( filename, template )
-				
-				puts( "├╼ Reading template program-common", start=builder.prefix )
-				template = builder.template( "program-common", formats=formats )
-				filename = f"{pathname}/{project}/src/{module}/common.py"
-				puts( f"├╼ Writing {filename}", start=builder.prefix )
-				builder.write( filename, template )
-				
-				puts( "├╼ Reading template program-errors", start=builder.prefix )
-				template = builder.template( "program-errors", formats=formats )
-				filename = f"{pathname}/{project}/src/{module}/errors.py"
-				puts( f"├╼ Writing {filename}", start=builder.prefix )
-				builder.write( filename, template )
-				
+				templates = [
+					{
+						"file": f"{pathname}/{project}/.config",
+						"name": "program-configs"
+					},
+					{
+						"file": f"{pathname}/{project}/src/{project.lower()}.py",
+						"name": "program-main"
+					},
+					{
+						"file": f"{pathname}/{project}/src/{module}/__init__.py",
+						"name": "program-init"
+					},
+					{
+						"file": f"{pathname}/{project}/src/{module}/constant.py",
+						"name": "program-constant"
+					},
+					{
+						"file": f"{pathname}/{project}/src/{module}/common.py",
+						"name": "program-common"
+					},
+					{
+						"file": f"{pathname}/{project}/src/{module}/errors.py",
+						"name": "program-errors"
+					},
+					{
+						"file": f"{pathname}/{project}/.gitignore",
+						"name": "program-gitignore"
+					},
+					{
+						"file": f"{pathname}/{project}/src/{module}/logger.py",
+						"name": "program-logger"
+					},
+					{
+						"file": f"{pathname}/{project}/src/{module}/request.py",
+						"name": "program-request"
+					},
+					{
+						"file": f"{pathname}/{project}/{project.lower()}",
+						"mode": 509,
+						"name": "program-executable"
+					},
+					{
+						"file": f"{pathname}/{project}/LICENSE",
+						"name": "program-license"
+					},
+					{
+						"file": f"{pathname}/{project}/README.md",
+						"name": "program-readme"
+					}
+				]
 				support = autocomplete( builder.prompt.format( **{ **builder.kwargs, "project": project, "pathname": pathname, "author": nickname, "label": "suport multithreading and multiprocessing<Y,n>" }), prefix=builder.prefix, values=[ "Y", "y", "N", "n" ] )
 				if support in [ "Y", "y" ]:
-					puts( "├╼ Reading template program-main-multithreading", start=builder.prefix )
-					template = builder.template( "program-main-multithreading", formats=formats )
-					filename = f"{pathname}/{project}/src/{project.lower()}.py"
-					puts( f"├╼ Writing {filename}", start=builder.prefix )
-					builder.write( filename, template )
-					puts( "├╼ Reading template program-futures", start=builder.prefix )
-					template = builder.template( "program-futures", formats=formats )
-					filename = f"{pathname}/{project}/src/{module}/futures.py"
-					puts( f"├╼ Writing {filename}", start=builder.prefix )
-					builder.write( filename, template )
-				
+					templates.extend([
+						{
+							"file": f"{pathname}/{project}/src/{project.lower()}.py",
+							"name": "program-main-multithreading"
+						},
+						{
+							"file": f"{pathname}/{project}/src/{module}/futures.py",
+							"name": "program-futures"
+						}
+					])
 				support = autocomplete( builder.prompt.format( **{ **builder.kwargs, "project": project, "pathname": pathname, "author": nickname, "label": "suport kafka<Y,n>" }), prefix=builder.prefix, values=[ "Y", "y", "N", "n" ] )
 				if support in [ "Y", "y" ]:
-					puts( "├╼ Reading template program-kafka", start=builder.prefix )
-					template = builder.template( "program-kafka", formats=formats )
-					filename = f"{pathname}/{project}/src/{module}/kafka.py"
-					puts( f"├╼ Writing {filename}", start=builder.prefix )
-					builder.write( filename, template )
-				
-				puts( "├╼ Reading template program-gitignore", start=builder.prefix )
-				template = builder.template( "program-gitignore", formats=formats )
-				filename = f"{pathname}/{project}/.gitignore"
-				puts( f"├╼ Writing {filename}", start=builder.prefix )
-				builder.write( filename, template )
-				
-				puts( "├╼ Reading template program-logger", start=builder.prefix )
-				template = builder.template( "program-logger", formats=formats )
-				filename = f"{pathname}/{project}/src/{module}/logger.py"
-				puts( f"├╼ Writing {filename}", start=builder.prefix )
-				builder.write( filename, template )
-				
-				puts( "├╼ Reading template program-request", start=builder.prefix )
-				template = builder.template( "program-request", formats=formats )
-				filename = f"{pathname}/{project}/src/{module}/request.py"
-				puts( f"├╼ Writing {filename}", start=builder.prefix )
-				builder.write( filename, template )
-				
-				puts( "├╼ Reading template program-executable", start=builder.prefix )
-				template = builder.template( "program-executable", formats=formats )
-				filename = f"{pathname}/{project}/{project.lower()}"
-				puts( f"├╼ Writing {filename}", start=builder.prefix )
-				builder.write( filename, template )
-				puts( f"├╼ Chmod {filename}", start=builder.prefix )
-				chmod( filename, 509 )
-				
-				puts( "├╼ Reading template program-license", start=builder.prefix )
-				template = builder.template( "program-license", formats=formats )
-				filename = f"{pathname}/{project}/LICENSE"
-				puts( f"├╼ Writing {filename}", start=builder.prefix )
-				builder.write( filename, template )
-				
-				puts( "├╼ Reading template program-readme", start=builder.prefix )
-				template = builder.template( "program-readme", formats={
-					"project": project,
-					"biograph": biograph
-				})
-				filename = f"{pathname}/{project}/README.md"
-				puts( f"├╼ Writing {filename}", start=builder.prefix )
-				builder.write( filename, template )
-				
+					templates.append({
+						"file": f"{pathname}/{project}/src/{module}/kafka.py",
+						"name": "program-kafka"
+					})
+				for item in templates:
+					puts( f"├╼ Reading template {item['name']}", start=builder.prefix )
+					template = builder.template( item['name'], formats=formats )
+					puts( f"├╼ Writing {item['file']}", start=builder.prefix )
+					builder.write( item['file'], template )
 				puts( "├╼ Success", start=builder.prefix )
 		except Exception as e:
 			puts( "├╼ {}:".format( typeof( e ) ), start=builder.prefix )
