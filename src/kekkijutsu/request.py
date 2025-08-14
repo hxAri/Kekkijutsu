@@ -22,7 +22,7 @@
 # Visit the github page <https://github.com/hxAri/Kekkijutsu>.
 #
 
-from builtins import bool as Bool, int as Int, str as Str
+from builtins import bool as Bool, bytes as Bytes, int as Int, str as Str
 from requests import Response, Session
 from requests.exceptions import (
 	ConnectionError as RequestConnectionError, 
