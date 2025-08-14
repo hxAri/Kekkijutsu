@@ -220,6 +220,9 @@ class Command:
 					template = builder.template( item['name'], formats=formats )
 					puts( f"├╼ Writing {item['file']}", start=builder.prefix )
 					builder.write( item['file'], template )
+					if "mode" in item and isinstance( item['mode'], int ):
+						puts( f"├╼ Chmod {item['mode']} {item['file']}", start=builder.prefix )
+						chmod( item['file'], mode=item['mode'] )
 				puts( "├╼ Success", start=builder.prefix )
 		except Exception as e:
 			puts( "├╼ {}:".format( typeof( e ) ), start=builder.prefix )
